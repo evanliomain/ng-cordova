@@ -364,14 +364,14 @@ angular.module('ngCordova.plugins.barcodeScanner', [])
   .factory('$cordovaBarcodeScanner', ['$q', function ($q) {
 
     return {
-      scan: function () {
+      scan: function (config) {
         var q = $q.defer();
 
         cordova.plugins.barcodeScanner.scan(function (result) {
           q.resolve(result);
         }, function (err) {
           q.reject(err);
-        });
+        }, config);
 
         return q.promise;
       },
@@ -590,9 +590,54 @@ angular.module('ngCordova.plugins.bluetoothSerial', [])
         return q.promise;
       },
 
+
+      discoverUnpaired: function () {
+        var q = $q.defer();
+        $window.bluetoothSerial.discoverUnpaired(function (data) {
+          q.resolve(data);
+        }, function (error) {
+          q.reject(error);
+        });
+        return q.promise;
+      },
+
+
+      setDeviceDiscoveredListener: function () {
+        var q = $q.defer();
+        $window.bluetoothSerial.setDeviceDiscoveredListener(function (data) {
+          q.notify(data);
+        });
+        return q.promise;
+      },
+
+      clearDeviceDiscoveredListener: $window.bluetoothSerial.clearDeviceDiscoveredListener,
+
+
+      showBluetoothSettings: function () {
+        var q = $q.defer();
+        $window.bluetoothSerial.showBluetoothSettings(function () {
+          q.resolve();
+        }, function (error) {
+          q.reject(error);
+        });
+        return q.promise;
+      },
+
+
       isEnabled: function () {
         var q = $q.defer();
         $window.bluetoothSerial.isEnabled(function () {
+          q.resolve();
+        }, function () {
+          q.reject();
+        });
+        return q.promise;
+      },
+
+
+      enable: function () {
+        var q = $q.defer();
+        $window.bluetoothSerial.enable(function () {
           q.resolve();
         }, function () {
           q.reject();
@@ -3269,6 +3314,128 @@ angular.module('ngCordova.plugins.googleMap', [])
     };
   }]);
 
+// install   :   cordova plugin add https://github.com/ptgamr/cordova-google-play-game.git --variable APP_ID=123456789
+// link      :   https://github.com/ptgamr/cordova-google-play-game
+
+angular.module('ngCordova.plugins.googlePlayGame', [])
+
+	.factory('$cordovaGooglePlayGame', ['$q', function ($q) {
+
+		return {
+
+			auth: function() {
+				var q = $q.defer();
+
+				googleplaygame.auth(function(success) {
+					return q.resolve(success);
+				}, function(err) {
+					return q.reject(err);
+				});
+
+				return q.promise;
+			},
+			signout: function() {
+				var q = $q.defer();
+
+				googleplaygame.signout(function(success) {
+					return q.resolve(success);
+				}, function(err) {
+					return q.reject(err);
+				});
+
+				return q.promise;
+			},
+			isSignedIn: function() {
+				var q = $q.defer();
+
+				googleplaygame.isSignedIn(function(success) {
+					return q.resolve(success);
+				}, function(err) {
+					return q.reject(err);
+				});
+
+				return q.promise;
+			},
+			showPlayer: function() {
+				var q = $q.defer();
+
+				googleplaygame.showPlayer(function(success) {
+					return q.resolve(success);
+				}, function(err) {
+					return q.reject(err);
+				});
+
+				return q.promise;
+			},
+			submitScore: function(data) {
+				var q = $q.defer();
+
+				googleplaygame.submitScore(data, function(success) {
+					return q.resolve(success);
+				}, function(err) {
+					return q.reject(err);
+				});
+
+				return q.promise;
+			},
+			showAllLeaderboards: function() {
+				var q = $q.defer();
+
+				googleplaygame.showAllLeaderboards(function(success) {
+					return q.resolve(success);
+				}, function(err) {
+					return q.reject(err);
+				});
+
+				return q.promise;
+			},
+			showLeaderboard: function(data) {
+				var q = $q.defer();
+
+				googleplaygame.showLeaderboard(data, function(success) {
+					return q.resolve(success);
+				}, function(err) {
+					return q.reject(err);
+				});
+
+				return q.promise;
+			},
+			unlockAchievement: function(data) {
+				var q = $q.defer();
+
+				googleplaygame.unlockAchievement(data, function(success) {
+					return q.resolve(success);
+				}, function(err) {
+					return q.reject(err);
+				});
+
+				return q.promise;
+			},
+			incrementAchievement: function(data) {
+				var q = $q.defer();
+
+				googleplaygame.incrementAchievement(data, function(success) {
+					return q.resolve(success);
+				}, function(err) {
+					return q.reject(err);
+				});
+
+				return q.promise;
+			},
+			showAchievements: function() {
+				var q = $q.defer();
+
+				googleplaygame.showAchievements(function(success) {
+					return q.resolve(success);
+				}, function(err) {
+					return q.reject(err);
+				});
+
+				return q.promise;
+			}
+		};
+
+	}]);
 // install  :     cordova plugin add nl.x-services.plugins.googleplus
 // link     :     https://github.com/EddyVerbruggen/cordova-plugin-googleplus
 
@@ -3355,6 +3522,27 @@ angular.module('ngCordova.plugins.healthKit', [])
         var q = $q.defer();
 
         $window.plugins.healthkit.available(function (success) {
+          q.resolve(success);
+        }, function (err) {
+          q.reject(err);
+        });
+
+        return q.promise;
+      },
+
+      /**
+       * Check whether or not the user granted your app access to a specific HealthKit type.
+       * Reference for possible types:
+       * https://developer.apple.com/library/ios/documentation/HealthKit/Reference/HealthKit_Constants/
+       */
+      checkAuthStatus: function (type) {
+        var q = $q.defer();
+
+        type = type || 'HKQuantityTypeIdentifierHeight';
+
+        $window.plugins.healthkit.checkAuthStatus({
+          'type': type
+        }, function (success) {
           q.resolve(success);
         }, function (err) {
           q.reject(err);
@@ -3871,6 +4059,24 @@ angular.module('ngCordova.plugins.instagram', [])
         }
       });
       return q.promise;
+    },
+    isInstalled: function () {
+      var q = $q.defer();
+
+      if (!window.Instagram) {
+        console.error('Tried to call Instagram.isInstalled but the Instagram plugin isn\'t installed!');
+        q.resolve(null);
+        return q.promise;
+      }
+
+      Instagram.isInstalled(function (err, installed) {
+        if (err) {
+          q.reject(err);
+        } else {
+          q.resolve(installed || true);
+        }
+      });
+      return q.promise;
     }
   };
 }]);
@@ -3949,7 +4155,7 @@ angular.module('ngCordova.plugins.localNotification', [])
   .factory('$cordovaLocalNotification', ['$q', '$window', '$rootScope', '$timeout', function ($q, $window, $rootScope, $timeout) {
     document.addEventListener("deviceready", function () {
       if ($window.plugin && $window.plugin.notification) {
-        $window.plugin.notification.local.oncancel = function (id, state, json) {
+        $window.plugin.notification.local.on("cancel", function (id, state, json) {
           var notification = {
             id: id,
             state: state,
@@ -3958,9 +4164,9 @@ angular.module('ngCordova.plugins.localNotification', [])
           $timeout(function () {
             $rootScope.$broadcast("$cordovaLocalNotification:canceled", notification);
           });
-        };
+        });
 
-        $window.plugin.notification.local.onclick = function (id, state, json) {
+        $window.plugin.notification.local.on("click", function (id, state, json) {
           var notification = {
             id: id,
             state: state,
@@ -3969,9 +4175,9 @@ angular.module('ngCordova.plugins.localNotification', [])
           $timeout(function () {
             $rootScope.$broadcast("$cordovaLocalNotification:clicked", notification);
           });
-        };
+        });
 
-        $window.plugin.notification.local.ontrigger = function (id, state, json) {
+        $window.plugin.notification.local.on("trigger", function (id, state, json) {
           var notification = {
             id: id,
             state: state,
@@ -3980,9 +4186,9 @@ angular.module('ngCordova.plugins.localNotification', [])
           $timeout(function () {
             $rootScope.$broadcast("$cordovaLocalNotification:triggered", notification);
           });
-        };
+        });
 
-        $window.plugin.notification.local.onadd = function (id, state, json) {
+        $window.plugin.notification.local.on("add", function (id, state, json) {
           var notification = {
             id: id,
             state: state,
@@ -3991,7 +4197,7 @@ angular.module('ngCordova.plugins.localNotification', [])
           $timeout(function () {
             $rootScope.$broadcast("$cordovaLocalNotification:added", notification);
           });
-        };
+        });
       }
     }, false);
     return {
@@ -4415,6 +4621,7 @@ angular.module('ngCordova.plugins', [
   'ngCordova.plugins.googleAds',
   'ngCordova.plugins.googleAnalytics',
   'ngCordova.plugins.googleMap',
+  'ngCordova.plugins.googlePlayGame',
   'ngCordova.plugins.healthKit',
   'ngCordova.plugins.httpd',
   'ngCordova.plugins.iAd',
@@ -5962,17 +6169,17 @@ angular.module('ngCordova.plugins.push', [])
     };
   }]);
 
-// install   :      cordova plugin add https://github.com/aharris88/phonegap-sms-plugin.git
-// link      :      https://github.com/aharris88/phonegap-sms-plugin
+// install   :      cordova plugin add https://github.com/cordova-sms/cordova-sms-plugin.git
+// link      :      https://github.com/cordova-sms/cordova-sms-plugin
 
 angular.module('ngCordova.plugins.sms', [])
 
   .factory('$cordovaSms', ['$q', function ($q) {
 
     return {
-      send: function (number, message, intent) {
+      send: function (number, message, options) {
         var q = $q.defer();
-        sms.send(number, message, intent, function (res) {
+        sms.send(number, message, options, function (res) {
           q.resolve(res);
         }, function (err) {
           q.reject(err);
@@ -6258,7 +6465,7 @@ angular.module('ngCordova.plugins.sqlite', [])
   }]);
 
 // install   :      cordova plugin add org.apache.cordova.statusbar
-// link      :      https://github.com/apache/cordova-plugin-statusbar/blob/master/doc/index.md
+// link      :      https://github.com/apache/cordova-plugin-statusbar/
 
 angular.module('ngCordova.plugins.statusbar', [])
 
